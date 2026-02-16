@@ -46,7 +46,7 @@ int Server::init(uint16_t port)
 		return 1;
 	}
 
-	printf("Server listening on port %d, ", port);
+	printf("Server listening on port %d \n", port);
 
 	//Setting up sets
 
@@ -64,6 +64,15 @@ int Server::init(uint16_t port)
 
 		//Wait for activity
 		int activity = select(max_fd + 1, &ready_set, NULL, NULL, NULL);
+		
+		if (activity > 0)
+		{
+			printf("Connected...");
+		}
+		else
+		{
+			printf("Disconnected...");
+		}
 
 		//loop through all possible sockets, because fd_set is just bits
 		for (int s = 0; s <= max_fd; s++)
@@ -81,7 +90,12 @@ int Server::init(uint16_t port)
 
 					if (client_socket > max_fd)
 						max_fd = client_socket;
-					
+
+					const char* welcome = "\n Welcome!\n";
+					const char* commandChar = "\n ~\n";
+
+					send(client_socket, welcome, (int)strlen(welcome), 0);
+
 				}
 				//Incoming data
 				else
@@ -99,7 +113,8 @@ int Server::init(uint16_t port)
 					}
 					else
 					{
-						// handle data
+						//display data from client 
+						printf("Data from client: %d\n", buffer);
 					}
 				}
 
