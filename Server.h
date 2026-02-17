@@ -16,6 +16,9 @@ public:
 
 	int init(uint16_t port);
 
+	static int send_all(SOCKET s, const char* msg, int len);
+	static int send_packet(SOCKET s, const char* msg);
+
 private:
 
 	WSADATA wsadata;

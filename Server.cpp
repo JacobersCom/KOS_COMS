@@ -84,18 +84,26 @@ int Server::init(uint16_t port)
 				if (s == listen_socket)
 				{
 					//accept the connection
-					client_socket = accept(listen_socket, NULL, NULL);
+					client_socket = accept(s, NULL, NULL);
+
+					if (client_socket < 0)
+					{
+						printf("NULL connection\n");
+						closesocket(client_socket);
+						WSACleanup();
+						return 1;
+					}
+
 					//add client socket to the master set
 					FD_SET(client_socket, &master_set);
 
 					if (client_socket > max_fd)
 						max_fd = client_socket;
 
-					const char* welcome = "\n Welcome!\n";
-					const char* commandChar = "\n ~\n";
+					
 
-					send(client_socket, welcome, (int)strlen(welcome), 0);
-
+					send_packet(client_socket, "\n~"); 
+					
 				}
 				//Incoming data
 				else
@@ -114,7 +122,7 @@ int Server::init(uint16_t port)
 					else
 					{
 						//display data from client 
-						printf("Data from client: %d\n", buffer);
+						printf("Data from client: %c\n", buffer);
 					}
 				}
 
@@ -123,4 +131,46 @@ int Server::init(uint16_t port)
 
 	}
 
+}
+
+int Server::send_all(SOCKET s, const char* msg, int len)
+{
+	int bytesSent = 0;
+
+	while (bytesSent < len)
+	{
+		int result = send(s, msg + bytesSent, len - bytesSent, 0);
+
+		if (result < 0)
+		{
+			return result;
+		}
+
+		bytesSent += result;
+	}
+	return bytesSent;
+}
+
+int Server::send_packet(SOCKET s, const char* msg)
+{
+	//If there is no msg return error
+	if (!msg) return SOCKET_ERROR;
+
+	//Get the len of the message
+	size_t msg_len = strlen(msg);
+
+	
+
+	unsigned char len_bytes = (unsigned char)msg_len;
+	
+	if (send_all(s, (const char*)&len_bytes, 1) == SOCKET_ERROR)
+		return SOCKET_ERROR;
+
+	if (msg_len > 0)
+	{
+		if (send_all(s, msg, (int)msg_len) == SOCKET_ERROR)
+			return SOCKET_ERROR;
+	}
+
+	return (int)(1 + msg_len);
 }
