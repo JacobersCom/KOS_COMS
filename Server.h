@@ -18,6 +18,8 @@ public:
 
 	static int send_all(SOCKET s, const char* msg, int len);
 	static int send_packet(SOCKET s, const char* msg);
+	static int revc_exact(SOCKET s, char* incomingMsg, int len);
+	static int recv_packet(SOCKET s, char incomingMsg[256]);
 
 private:
 
