@@ -111,6 +111,7 @@ int Server::init(uint16_t port)
 					else
 					{
 						printf("Client Says: %s\n", buffer);
+						server_commands(client_socket,buffer);
 					}
 				}
 
@@ -225,5 +226,22 @@ int Server::recv_packet(SOCKET s, char incomingMsg[256])
 	//Adds a null terminate to the end of the string
 	incomingMsg[payload_len] = '\0';
 	return payload_len;
+}
+
+int Server::server_commands(SOCKET s, const char* buffer)
+{
+	switch (CommandFromToken(buffer))
+	{
+		case ServerCommands::help:
+		{
+			send_packet(s,
+				"List of available commands:\n ~help\n ~register\n ~login\n");
+
+			return ServerReturns::SUCCESS;
+			
+			break;
+		}
+	}
+	return ServerReturns::Unknown;
 }
 
