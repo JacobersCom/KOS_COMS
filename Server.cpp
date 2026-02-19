@@ -99,9 +99,9 @@ int Server::init(uint16_t port)
 				{
 					//Reads the data and not blocked by select because select said its ready
 					char buffer[512];
-					int bytes = recv(s, buffer, sizeof(buffer), 0);
+					int payload_size = recv_packet(client_socket, buffer);
 
-					if (bytes <= 0)
+					if (payload_size <= 0)
 					{
 						//close socket
 						closesocket(s);
@@ -110,12 +110,7 @@ int Server::init(uint16_t port)
 					}
 					else
 					{
-						int payload_size = recv_packet(client_socket, buffer);
-
-						if (payload_size > 0)
-						{
-							printf("Client Says: %s\n", buffer);
-						}
+						printf("Client Says: %s\n", buffer);
 					}
 				}
 
@@ -181,13 +176,13 @@ int Server::send_packet(SOCKET s, const char* msg)
 
 int Server::revc_exact(SOCKET s, char* incomingMsg, int len)
 {
-	int bytesSent = 0;
+	int incomingBytes = 0;
 
 	//While the full msg hasnt been sent
-	while (bytesSent < len)
+	while (incomingBytes < len)
 	{
 		//Send one byte pre iteration
-		int result = send(s, incomingMsg + bytesSent, len - bytesSent, 0);
+		int result = recv(s, incomingMsg + incomingBytes, len - incomingBytes, 0);
 
 		//client disconnect
 		if (result == 0)
@@ -202,10 +197,10 @@ int Server::revc_exact(SOCKET s, char* incomingMsg, int len)
 		}
 
 		//Advance to the next byte
-		bytesSent += result;
+		incomingBytes += result;
 	}
 	//return the lenght of the msg 
-	return bytesSent;
+	return incomingBytes;
 }
 
 int Server::recv_packet(SOCKET s, char incomingMsg[256])
