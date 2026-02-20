@@ -2,6 +2,7 @@
 
 int Server::init(uint16_t port)
 {
+	InitHashTable();
 
 	//Init WinSock
 	if (WSAStartup(WINSOCK_VERSION, &wsadata) < 0)
@@ -11,7 +12,6 @@ int Server::init(uint16_t port)
 	}
 
 	//Create listening socket
-
 	listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listen_socket == INVALID_SOCKET)
 	{
@@ -240,6 +240,40 @@ int Server::server_commands(SOCKET s, const char* buffer)
 			return ServerReturns::SUCCESS;
 			
 			break;
+		}
+		case ServerCommands::signup:
+		{
+			send_packet(s,
+				"Please enter a username and password for your user EX: Jacobers 1234.");
+
+			recv_packet(s, (char*)buffer);
+			
+			char username[256];
+			char password[256];
+			int index = 0;
+
+			for (int i = 0; i < strnlen(buffer, 512); i++)
+			{
+				index = i;
+				if (buffer[i] == ' ') break;
+				username[i] = buffer[i];
+			}
+
+			username[index] = '\0';
+
+			for (int i = 0; index < strnlen(buffer, 256); index++)
+			{
+				if (buffer[index] == ' ') index++;
+				password[i] = buffer[index];
+				i++;
+			}
+
+			password[index] = '\0';
+
+			strcat(userInfo.username, username);
+			strcat(userInfo.password, password);
+
+			HashTableInsert(&userInfo);
 		}
 	}
 	return ServerReturns::Unknown;

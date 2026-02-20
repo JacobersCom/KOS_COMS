@@ -12,6 +12,9 @@
 #include <cstdlib>
 #include "ServerCommands.h"
 #include "ServerReturns.h"
+#include "UserInfo.h"
+
+static UserInfo userInfo;
 
 class Server
 {
@@ -24,6 +27,7 @@ public:
 	static int revc_exact(SOCKET s, char* incomingMsg, int len);
 	static int recv_packet(SOCKET s, char incomingMsg[256]);
 	static int server_commands(SOCKET s, const char* buffer);
+	static void splitString(char dst, const char* src);
 
 private:
 
@@ -39,4 +43,6 @@ private:
 	SOCKET client_socket;
 	//the highest numbered socket
 	int max_fd;
+
+	
 };

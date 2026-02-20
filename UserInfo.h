@@ -6,7 +6,7 @@
 
 #define MAX_USERNAME 256
 #define MAX_PASSWORD 256
-
+#define TABLE_SIZE 10
 
 struct UserInfo
 {
@@ -14,29 +14,30 @@ struct UserInfo
 	char password[MAX_PASSWORD];
 };
 
-UserInfo* HashTable[];
+static UserInfo* HashTable[TABLE_SIZE];
 
-unsigned int hash(char* username, int TableSize)
+inline unsigned int hash(char* username)
 {
 	int length = strnlen(username, MAX_USERNAME);
 	unsigned int hash_value = 0;
 	for (int i = 0; i < length; i++)
 	{
 		hash_value += username[i];
-		hash_value = (hash_value * username[i]) % TableSize;
+		hash_value = (hash_value * username[i]) % TABLE_SIZE;
 	}
 	return hash_value;
 }
 
-int InitHashTable(int TableSize)
+
+inline void InitHashTable()
 {
-	for (int i = 0; i < TableSize; i++)
+	for (int i = 0; i < TABLE_SIZE; i++)
 	{
 		HashTable[i] = NULL;
 	}
 }
 
-void PrintTable(int TableSize)
+inline void PrintTable(int TableSize)
 {
 	for (int i = 0; i < TableSize; i++)
 	{
@@ -51,10 +52,10 @@ void PrintTable(int TableSize)
 	}
 }
 
-bool HashTableInsert(UserInfo* info, int TableSize)
+inline bool HashTableInsert(UserInfo* info)
 {
 	if (info == NULL) return false;
-	int index = hash(info->username, TableSize);
+	int index = hash(info->username);
 	if (HashTable[index] != NULL)
 	{
 		return false;
